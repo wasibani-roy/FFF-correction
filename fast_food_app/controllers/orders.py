@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
-from flask import redirect, url_for, logging, jsonify
+from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from fast_food_app.models.models import Order
+from fast_food_app.models.models import Order, Users
 
 class order_modal(Resource):
     @jwt_required
@@ -15,7 +15,7 @@ class order_modal(Resource):
         if menu_item_id == "":
             return jsonify({"Error": "You have not selected you're order"}), 404
         else:
-                new_order = Order(menu_item_id, current_user,status="none",order_id="none")
+                new_order = Order(menu_id=menu_item_id, user_id=current_user,status="none",order_id="none")
 
 
                 return new_order.add_order()
@@ -23,7 +23,8 @@ class order_modal(Resource):
     @jwt_required
     def get(self):
         current_user = get_jwt_identity()
-        if current_user == 5:
+        x = Users(email=None, username=None, password=None)
+        if x.check_admin(current_user):
             orders = Order(order_id="none", status="none", menu_id="none", user_id="none")
             return orders.get_order_items()
         else:
@@ -43,7 +44,7 @@ class order_modal(Resource):
         order_id = data["orderid"].strip()
         order_status = data["status"].strip()
         if order_id == "" or order_status == "":
-            return jsonify({"Error": "Missing order id or order status"})
+            return jsonify({"Error": "Missing order id or order status"}),404
         else:
             orders = Order(order_id=order_id,status="null", user_id="null", menu_id="null")
             return orders.update_order(order_status)
@@ -53,7 +54,8 @@ class specific_order(Resource):
     @jwt_required
     def get(self,order_id= id):
         current_user = get_jwt_identity()
-        if current_user == 5:
+        x = Users(email=None, username=None, password=None)
+        if x.check_admin(current_user):
             new_order_id = int(order_id)
             orders = Order(user_id=current_user, order_id=new_order_id, menu_id="none", status="none")
 

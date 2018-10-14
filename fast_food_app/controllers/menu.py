@@ -1,14 +1,15 @@
 from flask_restful import Resource, reqparse
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from fast_food_app.models.models import Menu
+from fast_food_app.models.models import Menu, Users
 
 class menu_items(Resource):
 
     @jwt_required
     def post(self):
         current_user = get_jwt_identity()
-        if current_user == 5:
+        x = Users(email=None,username=None,password=None)
+        if x.check_admin(current_user):
             parser = reqparse.RequestParser()
             parser.add_argument('product', help='This field cannot be blank', required=True)
             parser.add_argument('description', help='This field cannot be blank', required=True)
@@ -30,7 +31,7 @@ class menu_items(Resource):
                 menu_item = Menu(product=product, description=description, price=price)
                 return menu_item.new_menu()
         else:
-            return jsonify({"Message": "Unauthorised"}), 200
+            return jsonify({"Message": "Unauthorised"}), 404
 
     def get(self):
         all_menu_items = Menu(product="none", price="none", description="none")

@@ -3,12 +3,12 @@ import os
 class BaseConfig:
     DATABASE_URL = 'postgresql://postgres:root@localhost:5432/order3_db'
     DEBUG = True
-    DB = 'fast_food_db'
+    DB = 'order3_db'
 
 class DevelopmentConfig(BaseConfig):
     DATABASE_URL = 'postgresql://postgres:root@localhost:5432/order3_db'
     DEBUG = True
-    DB = 'fast_food_db'
+    DB = 'order3_db'
 
 class TestingConfig(BaseConfig):
     if os.getenv('TRAVIS'):

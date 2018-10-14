@@ -2,10 +2,12 @@ from passlib.hash import pbkdf2_sha256 as sha256
 from fast_food_app.database import Database
 from flask import current_app as app
 from flask import jsonify
+import os
 from flask_jwt_extended import \
     (create_access_token, create_refresh_token)
-db = Database('postgresql://postgres:root@localhost:5432/order3_db')
 
+db = Database(os.environ["DATABASE_URL"])
+print(db)
 class Users:
     def __init__(self, username,password,email):
         self.username = username
@@ -22,7 +24,7 @@ class Users:
             db.cur.execute\
                 ("create table users(user_id serial primary key,username varchar(25) not null, email varchar(25) not null, password varchar not null)")
             query = "insert into users(username, email, password) values (%s, %s, %s)"
-            user_details = ( self.username, self.email, self.password)
+            user_details = ( self.username, self.email, sha256.hash(self.password))
             db.cur.execute(query, user_details)
             return jsonify({"success": "User created"}),201
     def authenticate_user(self):
@@ -42,6 +44,14 @@ class Users:
                 return jsonify({"Error": "Invalid username and password"}), 404
         else:
             return jsonify({"Error": "No user Found"}), 500
+
+    def check_admin(self, current_user_id):
+        db.cur.execute("select * from users where user_id=%s", (current_user_id,))
+        user_data = db.cur.fetchone()
+        if user_data['username'] == "admin":
+            return True
+        else:
+            return False
 
 
 class Order:
@@ -90,7 +100,7 @@ class Order:
               menu on orders.menu_item_id=menu.menu_id\
               where order_id=%s", [self.order_id])
             data = db.cur.fetchall()
-            return jsonify({"updated_order":data})
+            return jsonify({"updated_order":data}), 200
         return ("No update made")
 
     def get_user_order(self):
