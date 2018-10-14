@@ -101,7 +101,7 @@ class BaseCase(unittest.TestCase):
         response = self.client.post('api/v2/menu', data=json.dumps(menu), content_type='application/json',
                                     headers={'Authorization': self.get_admin_token()})
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Menu item now created", str(response.data))
+        self.assertIn("Menu item added", str(response.data))
 
     def test_place_a_food_items_invalid_data(self):
         menu = {"description":"chicken burger", "price":"12000"}
