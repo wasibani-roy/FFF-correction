@@ -13,7 +13,7 @@ before_script:
   - export DATABASE_URL= order3_test_db
 # command to run tests
 
-script: pytest -v 
+script: pytest -v --cov=fast_food_app --cov-report term-missing 
 
 after_success:
   - coveralls
