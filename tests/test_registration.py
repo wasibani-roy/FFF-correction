@@ -87,6 +87,24 @@ class BaseCase(unittest.TestCase):
         data = json.loads(response.data.decode())
         self.assertTrue(data['Access token'])
 
+    def test_user_login_invalid_password(self):
+        """method for testing user_login endpoint"""
+        user_log2 = {"username":"deo", "password":"deo1"}
+        self.create_valid_user()
+        response = self.client.post(
+            '/api/v2/login/', data=json.dumps(user_log2), content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Invalid username and password', str(response.data))
+
+    def test_user_login_invalid_username(self):
+        """method for testing user_login endpoint"""
+        user_log2 = {"username":"deot", "password":"deo1"}
+        self.create_valid_user()
+        response = self.client.post(
+            '/api/v2/login/', data=json.dumps(user_log2), content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('No user Found', str(response.data))
+
     def test_place_a_food_items_unauthorised(self):
         menu = {"product":"burger","description":"chicken burger", "price":"12000"}
         self.create_valid_user()
@@ -101,7 +119,7 @@ class BaseCase(unittest.TestCase):
         response = self.client.post('api/v2/menu', data=json.dumps(menu), content_type='application/json',
                                     headers={'Authorization': self.get_admin_token()})
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Menu item added", str(response.data))
+        self.assertIn("Menu item now created", str(response.data))
 
     def test_place_a_food_items_invalid_data(self):
         menu = {"description":"chicken burger", "price":"12000"}
